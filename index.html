@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quantum Cups</title>
+<style>
+    :root {
+        --bg1: #050816;
+        --bg2: #0b1024;
+        --accent: #00e5ff;
+        --accent2: #ff4081;
+        --text: #e0f7fa;
+    }
+
+    body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+        color: var(--text);
+        text-align: center;
+        padding: 20px;
+        overflow-x: hidden;
+    }
+
+    h1 {
+        font-size: 40px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2);
+        margin-bottom: 5px;
+    }
+
+    h2 {
+        margin-top: 0;
+        font-weight: 400;
+    }
+
+    #atoms {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+        gap: 80px;
+    }
+
+    .atom {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: bold;
+        font-size: 26px;
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        background: radial-gradient(circle at center, #ffffff33, #00e5ff11);
+        overflow: visible;
+    }
+
+    .atom:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 30px rgba(255, 64, 129, 0.7);
+    }
+
+    .atom::before,
+    .atom::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.4);
+        box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    .atom::before {
+        width: 120px;
+        height: 120px;
+        animation: orbit1 4s linear infinite;
+    }
+
+    .atom::after {
+        width: 90px;
+        height: 90px;
+        animation: orbit2 6s linear infinite;
+    }
+
+    .electron {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 10px #fff;
+    }
+
+    .electron.e1 { animation: eOrbit1 3s linear infinite; }
+    .electron.e2 { animation: eOrbit2 4s linear infinite; }
+    .electron.e3 { animation: eOrbit3 5s linear infinite; }
+
+    @keyframes orbit1 {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes orbit2 {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+    }
+
+    @keyframes eOrbit1 {
+        0% { transform: rotate(0deg) translateX(60px); }
+        100% { transform: rotate(360deg) translateX(60px); }
+    }
+
+    @keyframes eOrbit2 {
+        0% { transform: rotate(0deg) translateX(45px); }
+        100% { transform: rotate(360deg) translateX(45px); }
+    }
+
+    @keyframes eOrbit3 {
+        0% { transform: rotate(0deg) translateX(30px); }
+        100% { transform: rotate(360deg) translateX(30px); }
+    }
+
+    .shuffle {
+        animation: shuffleMove 0.8s ease-in-out;
+    }
+
+    @keyframes shuffleMove {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(40px); }
+        100% { transform: translateX(0); }
+    }
+
+    .photon-flash {
+        animation: photonFlash 0.5s ease-out;
+    }
+
+    @keyframes photonFlash {
+        0% { box-shadow: 0 0 10px #fff, 0 0 30px #00e5ff; }
+        100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
+    }
+
+    .electron-zap {
+        animation: electronZap 0.4s ease-out;
+    }
+
+    @keyframes electronZap {
+        0% { box-shadow: 0 0 20px #ff1744, 0 0 40px #ff1744; }
+        100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
+    }
+
+    .shake {
+        animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        50% { transform: translateX(10px); }
+        75% { transform: translateX(-6px); }
+    }
+
+    #shop, #skinShop, #adminMenu {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(10, 20, 40, 0.9);
+        border-radius: 12px;
+        display: inline-block;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    button {
+        padding: 8px 16px;
+        margin: 6px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        color: #fff;
+        font-weight: 600;
+        text-shadow: 0 0 4px rgba(0,0,0,0.7);
+    }
+
+    button:hover {
+        filter: brightness(1.2);
+    }
+
+    #quizBox {
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(20, 30, 60, 0.95);
+        border-radius: 10px;
+        display: none;
+    }
+
+    #quizAnswer {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: none;
+        margin-right: 8px;
+    }
+
+    #indicator {
+        margin-top: 15px;
+        padding: 8px 16px;
+        background: linear-gradient(90deg, #ffea00, #ff9100);
+        color: #000;
+        font-weight: bold;
+        border-radius: 10px;
+        display: none;
+        animation: fadeOut 2s forwards;
+        box-shadow: 0 0 15px rgba(255, 234, 0, 0.7);
+    }
+
+    @keyframes fadeOut {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    #adminMenu {
+        display: none;
+        margin-top: 20px;
+        text-align: left;
+        max-width: 400px;
+    }
+
+    #skinList {
+        max-height: 220px;
+        overflow-y: auto;
+        text-align: left;
+        width: 320px;
+    }
+
+    #skinList button {
+        width: 100%;
+        text-align: left;
+        margin: 4px 0;
+        font-size: 13px;
+    }
+
+    input {
+        margin: 4px 0;
+    }
+</style>
+</head>
+<body>
+
+<h1>Quantum Cups</h1>
+<h2>Photons, electrons, and atomic skins.</h2>
+<h2>Money: $<span id="money">10</span></h2>
+
+<div id="indicator"></div>
+
+<div id="atoms"></div>
+
+<div id="shop">
+    <h2>Quantum Powerups (Answer chemistry questions)</h2>
+    <button onclick="attemptBuy('hint')">Photon Hint</button>
+    <button onclick="attemptBuy('shield')">Electron Shield</button>
+    <button onclick="attemptBuy('double')">Photon Burst (x2)</button>
+    <button onclick="attemptBuy('lucky')">Electron Void</button>
+    <button onclick="attemptBuy('peek')">Quantum Peek</button>
+    <button onclick="attemptBuy('swap')">Atom Swap</button>
+</div>
+
+<div id="skinShop">
+    <h2>Element Skins (All 118, with bonuses)</h2>
+    <div id="skinList"></div>
+</div>
+
+<div style="margin-top:20px;">
+    <button onclick="adminLogin()">Admin Menu</button>
+</div>
+
+<div id="adminMenu">
+    <h2>Admin Panel</h2>
+
+    <h3>Edit Money</h3>
+    <input id="adminMoney" type="number" placeholder="Set money">
+    <button onclick="setMoney()">Apply</button>
+
+    <h3>Add New Chemistry Question</h3>
+    <input id="newQ" style="width:100%;" placeholder="Question">
+    <input id="newA" style="width:100%;" placeholder="Answer">
+    <button onclick="addQuestion()">Add Question</button>
+</div>
+
+<div id="quizBox">
+    <h3 id="quizQuestion"></h3>
+    <input id="quizAnswer" placeholder="Type answer">
+    <button onclick="submitAnswer()">Submit</button>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
