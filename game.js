@@ -3,6 +3,11 @@ let photonIndex = 0;
 let electronIndex = 1;
 let hintActive = false;
 
+function toggleInfo(id) {
+    const box = document.getElementById(id);
+    box.style.display = (box.style.display === "block") ? "none" : "block";
+}
+
 let shield = false;
 let doublePhoton = false;
 let electronVoid = false;
