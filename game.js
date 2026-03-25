@@ -2,12 +2,12 @@
 // Firebase init
 // =====================
 var firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyDS_yxog5WQtKgj1QSXCYq0GXuL-xlZx_k",
+  authDomain: "quantumcups-d4188.firebaseapp.com",
+  projectId: "quantumcups-d4188",
+  storageBucket: "quantumcups-d4188.firebasestorage.app",
+  messagingSenderId: "954669137662",
+  appId: "1:954669137662:web:0136e738c63910530fefaf"
 };
 firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
