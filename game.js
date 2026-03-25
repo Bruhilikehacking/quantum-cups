@@ -1,8 +1,6 @@
-// =====================
-// CONFIG
-// =====================
+// game.js - Quantum Cups Atomic Edition
+// Replace firebaseConfig with your real Firebase project config.
 
-// Replace with your Firebase config object
 const firebaseConfig = {
   apiKey: "AIzaSyDS_yxog5WQtKgj1QSXCYq0GXuL-xlZx_k",
   authDomain: "quantumcups-d4188.firebaseapp.com",
@@ -12,61 +10,83 @@ const firebaseConfig = {
   appId: "1:954669137662:web:0136e738c63910530fefaf"
 };
 
-// Set the admin email here (only this email will be allowed admin actions)
-const ADMIN_EMAIL = "ethridgesaxton@students.lewistonschools.net";
-
-// Firestore collection name
 const OPERATORS_COLLECTION = "operators";
 
-// =====================
-// Firebase init (v8)
+
+const ADMIN_PASSWORD_HASH = 1101; 
+
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h += str.charCodeAt(i);
+  return h;
+}
+
+/* Firebase init */
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// =====================
-// Periodic table (118)
-const periodicElements = [ /* same 118 elements as before */ 
-  { symbol: "H",  name: "Hydrogen" },{ symbol: "He", name: "Helium" },{ symbol: "Li", name: "Lithium" },
-  { symbol: "Be", name: "Beryllium" },{ symbol: "B",  name: "Boron" },{ symbol: "C",  name: "Carbon" },
-  { symbol: "N",  name: "Nitrogen" },{ symbol: "O",  name: "Oxygen" },{ symbol: "F",  name: "Fluorine" },
-  { symbol: "Ne", name: "Neon" },{ symbol: "Na", name: "Sodium" },{ symbol: "Mg", name: "Magnesium" },
-  { symbol: "Al", name: "Aluminium" },{ symbol: "Si", name: "Silicon" },{ symbol: "P",  name: "Phosphorus" },
-  { symbol: "S",  name: "Sulfur" },{ symbol: "Cl", name: "Chlorine" },{ symbol: "Ar", name: "Argon" },
-  { symbol: "K",  name: "Potassium" },{ symbol: "Ca", name: "Calcium" },{ symbol: "Sc", name: "Scandium" },
-  { symbol: "Ti", name: "Titanium" },{ symbol: "V",  name: "Vanadium" },{ symbol: "Cr", name: "Chromium" },
-  { symbol: "Mn", name: "Manganese" },{ symbol: "Fe", name: "Iron" },{ symbol: "Co", name: "Cobalt" },
-  { symbol: "Ni", name: "Nickel" },{ symbol: "Cu", name: "Copper" },{ symbol: "Zn", name: "Zinc" },
-  { symbol: "Ga", name: "Gallium" },{ symbol: "Ge", name: "Germanium" },{ symbol: "As", name: "Arsenic" },
-  { symbol: "Se", name: "Selenium" },{ symbol: "Br", name: "Bromine" },{ symbol: "Kr", name: "Krypton" },
-  { symbol: "Rb", name: "Rubidium" },{ symbol: "Sr", name: "Strontium" },{ symbol: "Y",  name: "Yttrium" },
-  { symbol: "Zr", name: "Zirconium" },{ symbol: "Nb", name: "Niobium" },{ symbol: "Mo", name: "Molybdenum" },
-  { symbol: "Tc", name: "Technetium" },{ symbol: "Ru", name: "Ruthenium" },{ symbol: "Rh", name: "Rhodium" },
-  { symbol: "Pd", name: "Palladium" },{ symbol: "Ag", name: "Silver" },{ symbol: "Cd", name: "Cadmium" },
-  { symbol: "In", name: "Indium" },{ symbol: "Sn", name: "Tin" },{ symbol: "Sb", name: "Antimony" },
-  { symbol: "Te", name: "Tellurium" },{ symbol: "I",  name: "Iodine" },{ symbol: "Xe", name: "Xenon" },
-  { symbol: "Cs", name: "Cesium" },{ symbol: "Ba", name: "Barium" },{ symbol: "La", name: "Lanthanum" },
-  { symbol: "Ce", name: "Cerium" },{ symbol: "Pr", name: "Praseodymium" },{ symbol: "Nd", name: "Neodymium" },
-  { symbol: "Pm", name: "Promethium" },{ symbol: "Sm", name: "Samarium" },{ symbol: "Eu", name: "Europium" },
-  { symbol: "Gd", name: "Gadolinium" },{ symbol: "Tb", name: "Terbium" },{ symbol: "Dy", name: "Dysprosium" },
-  { symbol: "Ho", name: "Holmium" },{ symbol: "Er", name: "Erbium" },{ symbol: "Tm", name: "Thulium" },
-  { symbol: "Yb", name: "Ytterbium" },{ symbol: "Lu", name: "Lutetium" },{ symbol: "Hf", name: "Hafnium" },
-  { symbol: "Ta", name: "Tantalum" },{ symbol: "W",  name: "Tungsten" },{ symbol: "Re", name: "Rhenium" },
-  { symbol: "Os", name: "Osmium" },{ symbol: "Ir", name: "Iridium" },{ symbol: "Pt", name: "Platinum" },
-  { symbol: "Au", name: "Gold" },{ symbol: "Hg", name: "Mercury" },{ symbol: "Tl", name: "Thallium" },
-  { symbol: "Pb", name: "Lead" },{ symbol: "Bi", name: "Bismuth" },{ symbol: "Po", name: "Polonium" },
-  { symbol: "At", name: "Astatine" },{ symbol: "Rn", name: "Radon" },{ symbol: "Fr", name: "Francium" },
-  { symbol: "Ra", name: "Radium" },{ symbol: "Ac", name: "Actinium" },{ symbol: "Th", name: "Thorium" },
-  { symbol: "Pa", name: "Protactinium" },{ symbol: "U",  name: "Uranium" },{ symbol: "Np", name: "Neptunium" },
-  { symbol: "Pu", name: "Plutonium" },{ symbol: "Am", name: "Americium" },{ symbol: "Cm", name: "Curium" },
-  { symbol: "Bk", name: "Berkelium" },{ symbol: "Cf", name: "Californium" },{ symbol: "Es", name: "Einsteinium" },
-  { symbol: "Fm", name: "Fermium" },{ symbol: "Md", name: "Mendelevium" },{ symbol: "No", name: "Nobelium" },
-  { symbol: "Lr", name: "Lawrencium" },{ symbol: "Rf", name: "Rutherfordium" },{ symbol: "Db", name: "Dubnium" },
-  { symbol: "Sg", name: "Seaborgium" },{ symbol: "Bh", name: "Bohrium" },{ symbol: "Hs", name: "Hassium" },
-  { symbol: "Mt", name: "Meitnerium" },{ symbol: "Ds", name: "Darmstadtium" },{ symbol: "Rg", name: "Roentgenium" },
-  { symbol: "Cn", name: "Copernicium" },{ symbol: "Nh", name: "Nihonium" },{ symbol: "Fl", name: "Flerovium" },
-  { symbol: "Mc", name: "Moscovium" },{ symbol: "Lv", name: "Livermorium" },{ symbol: "Ts", name: "Tennessine" },
-  { symbol: "Og", name: "Oganesson" }
+/* Periodic table (118) + ultra */
+const periodicElements = [
+  { symbol: "H",  name: "Hydrogen" },{ symbol: "He", name: "Helium" },
+  { symbol: "Li", name: "Lithium" },{ symbol: "Be", name: "Beryllium" },
+  { symbol: "B",  name: "Boron" },{ symbol: "C",  name: "Carbon" },
+  { symbol: "N",  name: "Nitrogen" },{ symbol: "O",  name: "Oxygen" },
+  { symbol: "F",  name: "Fluorine" },{ symbol: "Ne", name: "Neon" },
+  { symbol: "Na", name: "Sodium" },{ symbol: "Mg", name: "Magnesium" },
+  { symbol: "Al", name: "Aluminium" },{ symbol: "Si", name: "Silicon" },
+  { symbol: "P",  name: "Phosphorus" },{ symbol: "S",  name: "Sulfur" },
+  { symbol: "Cl", name: "Chlorine" },{ symbol: "Ar", name: "Argon" },
+  { symbol: "K",  name: "Potassium" },{ symbol: "Ca", name: "Calcium" },
+  { symbol: "Sc", name: "Scandium" },{ symbol: "Ti", name: "Titanium" },
+  { symbol: "V",  name: "Vanadium" },{ symbol: "Cr", name: "Chromium" },
+  { symbol: "Mn", name: "Manganese" },{ symbol: "Fe", name: "Iron" },
+  { symbol: "Co", name: "Cobalt" },{ symbol: "Ni", name: "Nickel" },
+  { symbol: "Cu", name: "Copper" },{ symbol: "Zn", name: "Zinc" },
+  { symbol: "Ga", name: "Gallium" },{ symbol: "Ge", name: "Germanium" },
+  { symbol: "As", name: "Arsenic" },{ symbol: "Se", name: "Selenium" },
+  { symbol: "Br", name: "Bromine" },{ symbol: "Kr", name: "Krypton" },
+  { symbol: "Rb", name: "Rubidium" },{ symbol: "Sr", name: "Strontium" },
+  { symbol: "Y",  name: "Yttrium" },{ symbol: "Zr", name: "Zirconium" },
+  { symbol: "Nb", name: "Niobium" },{ symbol: "Mo", name: "Molybdenum" },
+  { symbol: "Tc", name: "Technetium" },{ symbol: "Ru", name: "Ruthenium" },
+  { symbol: "Rh", name: "Rhodium" },{ symbol: "Pd", name: "Palladium" },
+  { symbol: "Ag", name: "Silver" },{ symbol: "Cd", name: "Cadmium" },
+  { symbol: "In", name: "Indium" },{ symbol: "Sn", name: "Tin" },
+  { symbol: "Sb", name: "Antimony" },{ symbol: "Te", name: "Tellurium" },
+  { symbol: "I",  name: "Iodine" },{ symbol: "Xe", name: "Xenon" },
+  { symbol: "Cs", name: "Cesium" },{ symbol: "Ba", name: "Barium" },
+  { symbol: "La", name: "Lanthanum" },{ symbol: "Ce", name: "Cerium" },
+  { symbol: "Pr", name: "Praseodymium" },{ symbol: "Nd", name: "Neodymium" },
+  { symbol: "Pm", name: "Promethium" },{ symbol: "Sm", name: "Samarium" },
+  { symbol: "Eu", name: "Europium" },{ symbol: "Gd", name: "Gadolinium" },
+  { symbol: "Tb", name: "Terbium" },{ symbol: "Dy", name: "Dysprosium" },
+  { symbol: "Ho", name: "Holmium" },{ symbol: "Er", name: "Erbium" },
+  { symbol: "Tm", name: "Thulium" },{ symbol: "Yb", name: "Ytterbium" },
+  { symbol: "Lu", name: "Lutetium" },{ symbol: "Hf", name: "Hafnium" },
+  { symbol: "Ta", name: "Tantalum" },{ symbol: "W",  name: "Tungsten" },
+  { symbol: "Re", name: "Rhenium" },{ symbol: "Os", name: "Osmium" },
+  { symbol: "Ir", name: "Iridium" },{ symbol: "Pt", name: "Platinum" },
+  { symbol: "Au", name: "Gold" },{ symbol: "Hg", name: "Mercury" },
+  { symbol: "Tl", name: "Thallium" },{ symbol: "Pb", name: "Lead" },
+  { symbol: "Bi", name: "Bismuth" },{ symbol: "Po", name: "Polonium" },
+  { symbol: "At", name: "Astatine" },{ symbol: "Rn", name: "Radon" },
+  { symbol: "Fr", name: "Francium" },{ symbol: "Ra", name: "Radium" },
+  { symbol: "Ac", name: "Actinium" },{ symbol: "Th", name: "Thorium" },
+  { symbol: "Pa", name: "Protactinium" },{ symbol: "U",  name: "Uranium" },
+  { symbol: "Np", name: "Neptunium" },{ symbol: "Pu", name: "Plutonium" },
+  { symbol: "Am", name: "Americium" },{ symbol: "Cm", name: "Curium" },
+  { symbol: "Bk", name: "Berkelium" },{ symbol: "Cf", name: "Californium" },
+  { symbol: "Es", name: "Einsteinium" },{ symbol: "Fm", name: "Fermium" },
+  { symbol: "Md", name: "Mendelevium" },{ symbol: "No", name: "Nobelium" },
+  { symbol: "Lr", name: "Lawrencium" },{ symbol: "Rf", name: "Rutherfordium" },
+  { symbol: "Db", name: "Dubnium" },{ symbol: "Sg", name: "Seaborgium" },
+  { symbol: "Bh", name: "Bohrium" },{ symbol: "Hs", name: "Hassium" },
+  { symbol: "Mt", name: "Meitnerium" },{ symbol: "Ds", name: "Darmstadtium" },
+  { symbol: "Rg", name: "Roentgenium" },{ symbol: "Cn", name: "Copernicium" },
+  { symbol: "Nh", name: "Nihonium" },{ symbol: "Fl", name: "Flerovium" },
+  { symbol: "Mc", name: "Moscovium" },{ symbol: "Lv", name: "Livermorium" },
+  { symbol: "Ts", name: "Tennessine" },{ symbol: "Og", name: "Oganesson" }
 ];
 
 const ultraElements = [
@@ -75,12 +95,11 @@ const ultraElements = [
   { symbol: "Sg*", name: "Singulite" }
 ];
 
-// =====================
-// Player model (Firestore)
+/* Player model */
 let player = {
   email: null,
-  credits: 0,
-  elementIndex: 0, // 0..117, 118+ for ultra
+  credits: 100,
+  elementIndex: 0,
   upgrades: { payoutBoost: 0, hintChance: 0, maxBet: 0, cupSpeed: 0 },
   rebirths: 0,
   totalScore: 0,
@@ -88,8 +107,7 @@ let player = {
   powerups: { burst: 0, shield: 0, peek: 0 }
 };
 
-// =====================
-// Upgrade & element defs
+/* Upgrades */
 const upgradeDefs = [
   { id: "payoutBoost", name: "Payout Boost", maxLevel: 6, baseCost: 50000 },
   { id: "hintChance",  name: "Quantum Hint", maxLevel: 4, baseCost: 100000 },
@@ -97,7 +115,14 @@ const upgradeDefs = [
   { id: "cupSpeed",    name: "Field Stabilizer", maxLevel: 4, baseCost: 120000 }
 ];
 
-function isUltra(index) { return index >= periodicElements.length; }
+function getUpgradeCost(def, level) {
+  return Math.floor(def.baseCost * Math.pow(2.2, level));
+}
+
+/* Element math */
+function isUltra(index) {
+  return index >= periodicElements.length;
+}
 
 function getElementData(index) {
   if (index < periodicElements.length) {
@@ -122,39 +147,37 @@ function getGlobalMultiplier() {
 }
 
 function getWinPayout(base) {
-  return Math.round(base * getGlobalMultiplier());
+  let payout = Math.round(base * getGlobalMultiplier());
+  if (player._burstActive) {
+    payout *= 2;
+    player._burstActive = false;
+  }
+  return payout;
 }
 
-function getUpgradeCost(def, level) {
-  return Math.floor(def.baseCost * Math.pow(2.2, level));
-}
-
-// =====================
-// Auth & Firestore persistence
+/* Auth */
 function signup() {
   const email = document.getElementById("emailInput").value.trim();
   const pass = document.getElementById("passwordInput").value;
   const msg = document.getElementById("authMessage");
   if (!email || !pass) { msg.textContent = "Enter email and password."; return; }
   auth.createUserWithEmailAndPassword(email, pass)
-    .then(cred => {
-      msg.textContent = "Account created. Loading profile...";
-    })
+    .then(() => msg.textContent = "Account created. Logging in...")
     .catch(err => msg.textContent = err.message);
 }
-
 function login() {
   const email = document.getElementById("emailInput").value.trim();
   const pass = document.getElementById("passwordInput").value;
   const msg = document.getElementById("authMessage");
   if (!email || !pass) { msg.textContent = "Enter email and password."; return; }
   auth.signInWithEmailAndPassword(email, pass)
-    .then(() => { msg.textContent = "Logged in."; })
+    .then(() => msg.textContent = "Logged in.")
     .catch(err => msg.textContent = err.message);
 }
-
 window.signup = signup;
 window.login = login;
+
+let leaderboardUnsub = null;
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -166,18 +189,19 @@ auth.onAuthStateChanged(user => {
       renderElements();
       renderUpgrades();
       updateUI();
-      loadLeaderboard();
+      subscribeLeaderboard();
     });
   } else {
     document.getElementById("authBox").style.display = "inline-block";
     document.getElementById("gameContainer").style.display = "none";
+    if (leaderboardUnsub) { leaderboardUnsub(); leaderboardUnsub = null; }
   }
 });
 
-// Save to Firestore
+/* Firestore persistence */
 function savePlayerToFirestore() {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return Promise.resolve();
   const docRef = db.collection(OPERATORS_COLLECTION).doc(user.uid);
   return docRef.set({
     email: user.email,
@@ -189,10 +213,9 @@ function savePlayerToFirestore() {
     powerupResearch: player.powerupResearch,
     powerups: player.powerups,
     updatedAt: Date.now()
-  }, { merge: true }).then(loadLeaderboard);
+  }, { merge: true });
 }
 
-// Load or create
 function loadPlayerFromFirestore(user) {
   const docRef = db.collection(OPERATORS_COLLECTION).doc(user.uid);
   return docRef.get().then(doc => {
@@ -230,8 +253,7 @@ function loadPlayerFromFirestore(user) {
   });
 }
 
-// =====================
-// UI helpers
+/* UI helpers */
 function updateUI() {
   document.getElementById("moneyValue").textContent = player.credits;
   const elem = getElementData(player.elementIndex);
@@ -240,6 +262,10 @@ function updateUI() {
   const rebMult = 1 + player.rebirths * 0.75;
   document.getElementById("rebirthDisplay").textContent =
     `Rebirths: ${player.rebirths} (x${rebMult.toFixed(1)})`;
+
+  // Set per-element visuals
+  document.body.setAttribute("data-element", elem.symbol);
+
   renderElements();
   renderUpgrades();
   updatePowerupUI();
@@ -248,11 +274,11 @@ function updateUI() {
 function setMessage(text, type) {
   const el = document.getElementById("message");
   el.textContent = text;
-  el.className = type === "win" ? "winText" : type === "lose" ? "loseText" : "";
+  el.className = type === "win" ? "message winText" :
+                 type === "lose" ? "message loseText" : "message";
 }
 
-// =====================
-// Atoms core loop (no betting)
+/* Atoms core loop */
 let photonIndex = 0;
 let electronIndex = 1;
 let roundActive = false;
@@ -286,7 +312,10 @@ function startRound() {
   do { electronIndex = Math.floor(Math.random() * 3); } while (electronIndex === photonIndex);
 
   const atoms = document.querySelectorAll(".atom");
-  atoms.forEach(a => { a.classList.remove("win", "lose", "shuffle"); a.style.boxShadow = "0 20px 40px rgba(0,0,0,0.8)"; });
+  atoms.forEach(a => {
+    a.classList.remove("win", "lose", "shuffle");
+    a.style.boxShadow = "0 20px 40px rgba(0,0,0,0.9)";
+  });
 
   roundActive = true;
   setMessage("Shuffling orbitals...", null);
@@ -300,20 +329,33 @@ function startRound() {
     if (count >= swaps) {
       clearInterval(interval);
       setMessage("Choose an atom.", null);
-      if (peekActive) { highlightPhoton(); peekActive = false; }
-      else maybeShowHint();
+      if (peekActive) {
+        highlightPhoton();
+        peekActive = false;
+      } else {
+        maybeShowHint();
+      }
     }
   }, speed);
 }
+window.startRound = startRound;
 
 function shuffleAtoms() {
   const atoms = document.querySelectorAll(".atom");
-  atoms.forEach(a => { a.classList.add("shuffle"); setTimeout(() => a.classList.remove("shuffle"), 300); });
-  const a = Math.floor(Math.random() * 3);
-  let b = Math.floor(Math.random() * 3); while (b === a) b = Math.floor(Math.random() * 3);
+  atoms.forEach(a => {
+    a.classList.add("shuffle");
+    setTimeout(() => a.classList.remove("shuffle"), 300);
+  });
 
-  if (photonIndex === a) photonIndex = b; else if (photonIndex === b) photonIndex = a;
-  if (electronIndex === a) electronIndex = b; else if (electronIndex === b) electronIndex = a;
+  const a = Math.floor(Math.random() * 3);
+  let b = Math.floor(Math.random() * 3);
+  while (b === a) b = Math.floor(Math.random() * 3);
+
+  if (photonIndex === a) photonIndex = b;
+  else if (photonIndex === b) photonIndex = a;
+
+  if (electronIndex === a) electronIndex = b;
+  else if (electronIndex === b) electronIndex = a;
 }
 
 function chooseAtom(index) {
@@ -330,7 +372,7 @@ function chooseAtom(index) {
     atoms[index].classList.add("win");
     setMessage(`Photon captured! +${amount} credits.`, "win");
   } else if (index === electronIndex) {
-    if (player.powerups.shield > 0) {
+    if ((player.powerups.shield || 0) > 0) {
       player.powerups.shield--;
       setMessage("Electron blocked by shield. No loss.", "win");
     } else {
@@ -343,12 +385,10 @@ function chooseAtom(index) {
   }
 
   roundActive = false;
-  savePlayerToFirestore();
-  updateUI();
+  savePlayerToFirestore().then(updateUI);
 }
 
-// =====================
-// Hints & powerups
+/* Hints & powerups */
 function maybeShowHint() {
   const level = player.upgrades.hintChance || 0;
   const chance = [0, 0.03, 0.06, 0.10, 0.15][level] || 0;
@@ -359,50 +399,51 @@ function highlightPhoton() {
   const atoms = document.querySelectorAll(".atom");
   const atom = atoms[photonIndex];
   atom.style.boxShadow = "0 0 25px #ffea00";
-  setTimeout(() => { atom.style.boxShadow = "0 20px 40px rgba(0,0,0,0.8)"; }, 800);
+  setTimeout(() => {
+    atom.style.boxShadow = "0 20px 40px rgba(0,0,0,0.9)";
+  }, 800);
 }
 
 function updatePowerupUI() {
-  document.getElementById("btnBurst").disabled = (player.powerups.burst || 0) <= 0;
-  document.getElementById("btnShield").disabled = (player.powerups.shield || 0) <= 0;
-  document.getElementById("btnPeek").disabled = (player.powerups.peek || 0) <= 0;
-  document.getElementById("powerupCounts").textContent =
+  const btnBurst = document.getElementById("btnBurst");
+  const btnShield = document.getElementById("btnShield");
+  const btnPeek = document.getElementById("btnPeek");
+  if (btnBurst) btnBurst.disabled = (player.powerups.burst || 0) <= 0;
+  if (btnShield) btnShield.disabled = (player.powerups.shield || 0) <= 0;
+  if (btnPeek) btnPeek.disabled = (player.powerups.peek || 0) <= 0;
+  const el = document.getElementById("powerupCounts");
+  if (el) el.textContent =
     `Burst: ${player.powerups.burst || 0} | Shield: ${player.powerups.shield || 0} | Peek: ${player.powerups.peek || 0}`;
 }
 
 function useBurst() {
   if ((player.powerups.burst || 0) <= 0) return;
   player.powerups.burst--;
-  // apply a temporary payout boost for next win: store a flag
   player._burstActive = true;
   setMessage("Photon Burst armed: next photon gives double payout.", "win");
-  savePlayerToFirestore();
-  updatePowerupUI();
+  savePlayerToFirestore().then(updatePowerupUI);
 }
+window.useBurst = useBurst;
 
 function useShield() {
   if ((player.powerups.shield || 0) <= 0) return;
-  // shield is consumed on electron hit automatically
   setMessage("Electron Shield armed: next electron will be ignored.", "win");
 }
+window.useShield = useShield;
 
 function usePeek() {
   if ((player.powerups.peek || 0) <= 0) return;
   player.powerups.peek--;
   peekActive = true;
   setMessage("Quantum Peek armed: photon will be revealed after shuffle.", "win");
-  savePlayerToFirestore();
-  updatePowerupUI();
+  savePlayerToFirestore().then(updatePowerupUI);
 }
-
-window.useBurst = useBurst;
-window.useShield = useShield;
 window.usePeek = usePeek;
 
-// =====================
-// Upgrades & elements UI
+/* Upgrades & elements UI */
 function renderUpgrades() {
   const list = document.getElementById("upgradeList");
+  if (!list) return;
   list.innerHTML = "";
   upgradeDefs.forEach(def => {
     const level = player.upgrades[def.id] || 0;
@@ -426,15 +467,16 @@ function buyUpgrade(id) {
   if (player.credits < cost) { alert("Not enough credits."); return; }
   player.credits -= cost;
   player.upgrades[id] = level + 1;
-  savePlayerToFirestore();
-  updateUI();
+  savePlayerToFirestore().then(updateUI);
 }
 
-// Elements
+/* Elements */
 function renderElements() {
   const list = document.getElementById("elementList");
+  if (!list) return;
   list.innerHTML = "";
   const current = player.elementIndex;
+
   for (let i = current; i < Math.min(current + 6, periodicElements.length); i++) {
     const data = getElementData(i);
     const btn = document.createElement("button");
@@ -444,6 +486,7 @@ function renderElements() {
     btn.onclick = () => upgradeElement(i);
     list.appendChild(btn);
   }
+
   if (current >= periodicElements.length - 1) {
     const ultraStart = periodicElements.length;
     for (let j = 0; j < ultraElements.length; j++) {
@@ -461,12 +504,10 @@ function renderElements() {
 
 function upgradeElement(targetIndex) {
   if (targetIndex <= player.elementIndex) return;
-  // sequential rule: must buy next index only
   if (targetIndex !== player.elementIndex + 1) {
     alert("Elements must be unlocked sequentially. Buy the next element in order.");
     return;
   }
-  // ultra gate: require rebirths >= (ultraIndex+1)
   if (isUltra(targetIndex)) {
     const ultraIndex = targetIndex - periodicElements.length;
     if (player.rebirths < ultraIndex + 1) {
@@ -478,31 +519,27 @@ function upgradeElement(targetIndex) {
   if (player.credits < data.cost) { alert("Not enough credits."); return; }
   player.credits -= data.cost;
   player.elementIndex = targetIndex;
-  savePlayerToFirestore();
-  updateUI();
+  savePlayerToFirestore().then(updateUI);
 }
 
-// =====================
-// Rebirth rules
+/* Rebirth */
 function attemptRebirth() {
-  // must have unlocked all 118 periodic elements
   if (player.elementIndex < periodicElements.length - 1) {
     alert("You must unlock all 118 elements before rebirthing.");
     return;
   }
-  if (!confirm("Rebirth will reset credits, element, and upgrades but grants a permanent multiplier and unlocks an ultra element. Continue?")) return;
+  if (!confirm("Rebirth resets credits, element, and upgrades but grants a permanent multiplier and unlocks ultra elements. Continue?")) return;
   player.rebirths += 1;
   player.credits = 100;
   player.elementIndex = 0;
   player.upgrades = { payoutBoost: 0, hintChance: 0, maxBet: 0, cupSpeed: 0 };
   player.powerupResearch = 0;
   player.powerups = { burst: 0, shield: 0, peek: 0 };
-  savePlayerToFirestore();
-  updateUI();
+  savePlayerToFirestore().then(updateUI);
 }
+window.attemptRebirth = attemptRebirth;
 
-// =====================
-// Chemistry questions (many)
+/* Chemistry questions */
 const chemQuestions = [
   { q: "What is the chemical symbol for Helium?", a: "He" },
   { q: "How many protons does Oxygen have?", a: "8" },
@@ -544,9 +581,13 @@ function newChemQuestion() {
   document.getElementById("quizAnswer").value = "";
   document.getElementById("quizFeedback").textContent = "";
 }
+window.newChemQuestion = newChemQuestion;
 
 function submitChemAnswer() {
-  if (currentChemIndex === null) { document.getElementById("quizFeedback").textContent = "Press New Question first."; return; }
+  if (currentChemIndex === null) {
+    document.getElementById("quizFeedback").textContent = "Press New Question first.";
+    return;
+  }
   const userAns = document.getElementById("quizAnswer").value.trim();
   const correct = chemQuestions[currentChemIndex].a.trim();
   const baseReward = 2000;
@@ -557,7 +598,6 @@ function submitChemAnswer() {
     player.totalScore += reward;
     player.powerupResearch = (player.powerupResearch || 0) + 1;
     let msg = `Correct. +${reward} credits. Research level: ${player.powerupResearch}.`;
-    // every 3 correct answers -> grant a powerup charge
     if (player.powerupResearch % 3 === 0) {
       const which = (player.powerupResearch / 3) % 3;
       if (which === 0) { player.powerups.burst = (player.powerups.burst || 0) + 1; msg += " | Photon Burst +1"; }
@@ -565,26 +605,25 @@ function submitChemAnswer() {
       else { player.powerups.peek = (player.powerups.peek || 0) + 1; msg += " | Quantum Peek +1"; }
     }
     document.getElementById("quizFeedback").textContent = msg;
-    savePlayerToFirestore();
-    updateUI();
   } else {
     const penalty = Math.round(reward * 0.4);
     player.credits = Math.max(0, player.credits - penalty);
-    document.getElementById("quizFeedback").textContent = `Incorrect. Correct: ${correct}. Penalty: -${penalty} credits.`;
-    savePlayerToFirestore();
-    updateUI();
+    document.getElementById("quizFeedback").textContent =
+      `Incorrect. Correct: ${correct}. Penalty: -${penalty} credits.`;
   }
-  currentChemIndex = null;
-}
 
-window.newChemQuestion = newChemQuestion;
+  currentChemIndex = null;
+  savePlayerToFirestore().then(updateUI);
+}
 window.submitChemAnswer = submitChemAnswer;
 
-// =====================
-// Leaderboard
-function loadLeaderboard() {
-  db.collection(OPERATORS_COLLECTION).orderBy("totalScore", "desc").limit(10).get()
-    .then(snap => {
+/* Leaderboard with snapshot listener */
+function subscribeLeaderboard() {
+  if (leaderboardUnsub) leaderboardUnsub();
+  leaderboardUnsub = db.collection(OPERATORS_COLLECTION)
+    .orderBy("totalScore", "desc")
+    .limit(10)
+    .onSnapshot(snap => {
       const list = document.getElementById("leaderboardList");
       list.innerHTML = "";
       let rank = 1;
@@ -598,14 +637,17 @@ function loadLeaderboard() {
     });
 }
 
-// =====================
-// Admin (admin-email method)
+/* Admin (password: GreenOrange) */
 function openAdmin() {
-  const user = auth.currentUser;
-  if (!user) { alert("Login required."); return; }
-  if (user.email !== ADMIN_EMAIL) { alert("You are not authorized to open admin panel."); return; }
+  const pwd = prompt("Enter admin password:");
+  if (!pwd) return;
+  if (simpleHash(pwd) !== ADMIN_PASSWORD_HASH) {
+    alert("Incorrect admin password.");
+    return;
+  }
   document.getElementById("adminMenu").style.display = "block";
 }
+window.openAdmin = openAdmin;
 
 function adminSetPlayerData() {
   const email = document.getElementById("adminTargetEmail").value.trim();
@@ -629,100 +671,20 @@ function adminSetPlayerData() {
         }
         batch.set(ref, Object.assign({}, data, {
           credits: isFinite(newCredits) ? newCredits : data.credits,
-          elementIndex: isFinite(newElementIndex) ? newElementIndex : data.elementIndex || 0,
-          rebirths: isFinite(newRebirths) ? newRebirths : data.rebirths || 0,
+          elementIndex: isFinite(newElementIndex) ? newElementIndex : (data.elementIndex || 0),
+          rebirths: isFinite(newRebirths) ? newRebirths : (data.rebirths || 0),
           upgrades: newUpgrades,
           updatedAt: Date.now()
         }));
       });
       return batch.commit();
     })
-    .then(() => { alert("Player updated."); loadLeaderboard(); })
+    .then(() => { alert("Player updated."); })
     .catch(err => { console.error(err); alert("Error updating player."); });
 }
-
-window.openAdmin = openAdmin;
 window.adminSetPlayerData = adminSetPlayerData;
 
-// =====================
-// Utility: save local copy and firestore
-function renderUpgrades() { renderUpgrades = renderUpgrades; /* placeholder to satisfy linter */ }
-function renderElements() { renderElements = renderElements; /* placeholder */ }
-
-function savePlayerToFirestoreIfAuthed() { return savePlayerToFirestore(); }
-
-// =====================
-// Initial render helpers
-function renderUpgrades() {
-  const list = document.getElementById("upgradeList");
-  list.innerHTML = "";
-  upgradeDefs.forEach(def => {
-    const level = player.upgrades[def.id] || 0;
-    const maxed = level >= def.maxLevel;
-    const cost = getUpgradeCost(def, level);
-    const btn = document.createElement("button");
-    let label = `${def.name} (Lv ${level}/${def.maxLevel})`;
-    if (!maxed) label += ` — Next: ${cost} credits`;
-    else label += " — MAXED";
-    btn.textContent = label;
-    btn.onclick = () => buyUpgrade(def.id);
-    list.appendChild(btn);
-  });
-}
-
-function renderElements() {
-  const list = document.getElementById("elementList");
-  list.innerHTML = "";
-  const current = player.elementIndex;
-  for (let i = current; i < Math.min(current + 6, periodicElements.length); i++) {
-    const data = getElementData(i);
-    const btn = document.createElement("button");
-    let label = `${data.symbol} — ${data.name} — cost ${data.cost} — x${data.multiplier.toFixed(1)}`;
-    if (i === current) label += " [Current]";
-    btn.textContent = label;
-    btn.onclick = () => upgradeElement(i);
-    list.appendChild(btn);
-  }
-  if (current >= periodicElements.length - 1) {
-    const ultraStart = periodicElements.length;
-    for (let j = 0; j < ultraElements.length; j++) {
-      const idx = ultraStart + j;
-      const data = getElementData(idx);
-      const btn = document.createElement("button");
-      let label = `${data.symbol} — ${data.name} — cost ${data.cost} — x${data.multiplier.toFixed(1)}`;
-      if (idx === current) label += " [Current]";
-      btn.textContent = label;
-      btn.onclick = () => upgradeElement(idx);
-      list.appendChild(btn);
-    }
-  }
-}
-
-function buyUpgrade(id) {
-  const def = upgradeDefs.find(u => u.id === id);
-  const level = player.upgrades[id] || 0;
-  if (level >= def.maxLevel) { alert("Max level reached."); return; }
-  const cost = getUpgradeCost(def, level);
-  if (player.credits < cost) { alert("Not enough credits."); return; }
-  player.credits -= cost;
-  player.upgrades[id] = level + 1;
-  savePlayerToFirestore();
-  updateUI();
-}
-
-// =====================
-// Leaderboard helper already defined above
-
-// =====================
-// Final small helpers
-function getUpgradeCost(def, level) { return Math.floor(def.baseCost * Math.pow(2.2, level)); }
-
-// Expose startRound for HTML
-window.startRound = startRound;
-window.attemptRebirth = attemptRebirth;
-window.upgradeElement = upgradeElement;
-window.buyUpgrade = buyUpgrade;
-window.renderUpgrades = renderUpgrades;
+/* Expose some helpers if needed */
 window.renderElements = renderElements;
+window.renderUpgrades = renderUpgrades;
 window.updateUI = updateUI;
-window.loadLeaderboard = loadLeaderboard;
