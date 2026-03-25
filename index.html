@@ -3,12 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Quantum Cups</title>
-
-  <!-- Firebase v8 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,11 +11,9 @@
 
 <div id="authBox">
   <h2>Operator Login</h2>
-  <input id="emailInput" type="email" placeholder="Email"><br>
-  <input id="passwordInput" type="password" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
-  <button onclick="signup()">Create Account</button>
-  <p id="authMessage" style="color:yellow; min-height:20px;"></p>
+  <input id="nameInput" placeholder="Operator name"><br>
+  <button onclick="login()">Enter Quantum Realm</button>
+  <p class="smallNote">This is local-only. No accounts, just your save in this browser.</p>
 </div>
 
 <div id="gameContainer">
@@ -36,16 +28,19 @@
   <div id="atoms"></div>
 
   <div id="controls">
-    Bet: <input id="betInput" type="number" value="10" min="1" style="width:80px;">
-    <button onclick="startRound()">Start Round</button>
-    <p class="smallNote">Click an atom after the shuffle to find the photon. Miss and you lose the bet.</p>
+    <button onclick="startRound()">Shuffle Atoms</button>
+    <p class="smallNote">
+      One atom hides a photon (win credits), one hides an electron (lose credits), one is empty.
+      No betting — just raw quantum risk.
+    </p>
     <div id="message"></div>
   </div>
 
   <div class="panel">
     <h3>Element Progression</h3>
     <p class="smallNote">
-      Unlock every element in the periodic table. Only after all 118 are unlocked can you rebirth and access ultra elements like Neurovium.
+      Unlock every element in the periodic table. Only after all 118 are unlocked can you rebirth
+      and access ultra elements like Neurovium.
     </p>
     <div id="elementList"></div>
     <button onclick="rebirth()">Rebirth</button>
@@ -61,9 +56,19 @@
   </div>
 
   <div class="panel">
+    <h3>Powerups</h3>
+    <p class="smallNote">
+      Powerups are researched via chemistry questions. Correct answers unlock and strengthen them.
+    </p>
+    <button id="btnBurst" onclick="useBurst()" disabled>Photon Burst (x2 next win)</button>
+    <button id="btnShield" onclick="useShield()" disabled>Electron Shield (ignore next loss)</button>
+    <button id="btnPeek" onclick="usePeek()" disabled>Quantum Peek (reveal photon once)</button>
+  </div>
+
+  <div class="panel">
     <h3>Research Lab (Chemistry Questions)</h3>
     <p class="smallNote">
-      High‑risk, high‑reward. Correct answers give big credits and can unlock or boost powerups. Wrong answers can cost you.
+      High‑risk, high‑reward. Correct answers give big credits and improve powerups. Wrong answers cost credits.
     </p>
     <p id="quizQuestion">Press "New Question" to begin.</p>
     <input id="quizAnswer" placeholder="Your answer">
@@ -73,22 +78,15 @@
   </div>
 
   <div class="panel">
-    <h3>Leaderboard (Lifetime Credits)</h3>
-    <ul id="leaderboardList"></ul>
-  </div>
-
-  <div class="panel">
     <h3>Admin</h3>
     <button onclick="adminLogin()">Open Admin Panel</button>
     <div id="adminMenu">
       <h4>Edit Player</h4>
-      <input id="adminTargetEmail" placeholder="Player email"><br>
-      <input id="adminTargetCredits" type="number" placeholder="Credits"><br>
-      <input id="adminTargetElement" type="number" placeholder="Element index (0‑117 + ultra)"><br>
-      <input id="adminTargetRebirths" type="number" placeholder="Rebirths"><br>
-      <input id="adminTargetUpgrades" placeholder='Upgrades JSON (optional)'><br>
-      <button onclick="adminSetPlayerData()">Apply</button>
-      <p class="smallNote">Full control: credits, element, rebirths, upgrades.</p>
+      <input id="adminCredits" type="number" placeholder="Credits"><br>
+      <input id="adminElementIndex" type="number" placeholder="Element index (0‑117 + ultra)"><br>
+      <input id="adminRebirths" type="number" placeholder="Rebirths"><br>
+      <button onclick="adminApply()">Apply</button>
+      <p class="smallNote">Full control: credits, element, rebirths.</p>
     </div>
   </div>
 </div>
