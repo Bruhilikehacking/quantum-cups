@@ -13,7 +13,7 @@ const firebaseConfig = {
 };
 
 // Set the admin email here (only this email will be allowed admin actions)
-const ADMIN_EMAIL = "you@yourdomain.com";
+const ADMIN_EMAIL = "ethridgesaxton@students.lewistonschools.net";
 
 // Firestore collection name
 const OPERATORS_COLLECTION = "operators";
