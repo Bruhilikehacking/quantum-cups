@@ -1,332 +1,96 @@
 <!DOCTYPE html>
 <html>
-<!-- STORY SECTION -->
-<div id="storyBox" class="infoBox">
-    <h2>📘 Story</h2>
-    <p>
-        In the neon depths of the Quantum Realm, unstable atoms drift through the void.
-        Photons — pure packets of energy — flicker between orbitals, while rogue electrons
-        threaten to destabilize everything they touch.  
-        <br><br>
-        You are the Quantum Operator, tasked with restoring balance by capturing photons,
-        avoiding electrons, and stabilizing atoms using your knowledge of chemistry.
-        Unlock elemental skins, master quantum powerups, and rise through the atomic ranks.
-    </p>
-</div>
-
-<!-- HOW TO PLAY SECTION -->
-<div id="howToPlay" class="infoBox">
-    <h2>🎮 How to Play</h2>
-    <ul>
-        <li>Click an atom to reveal what’s inside.</li>
-        <li>Find the <strong>photon</strong> to earn money.</li>
-        <li>Avoid the <strong>electron</strong> unless you have a shield.</li>
-        <li>Use money to unlock elemental skins — each gives bonuses.</li>
-        <li>Answer chemistry questions to activate powerups.</li>
-        <li>Photon Burst = double money.</li>
-        <li>Electron Void = no electrons for one round.</li>
-        <li>Atom Swap = swap two atoms before choosing.</li>
-        <li>Quantum Peek = see where the photon is.</li>
-    </ul>
-</div>
-
-<!-- BUTTONS TO TOGGLE SECTIONS -->
-<div style="margin-top:20px;">
-    <button onclick="toggleInfo('storyBox')">Toggle Story</button>
-    <button onclick="toggleInfo('howToPlay')">Toggle How-To-Play</button>
-</div>
-
 <head>
-<meta charset="UTF-8">
-<title>Quantum Cups</title>
-<style>
-    :root {
-        --bg1: #050816;
-        --bg2: #0b1024;
-        --accent: #00e5ff;
-        --accent2: #ff4081;
-        --text: #e0f7fa;
-    }
+  <meta charset="UTF-8">
+  <title>Quantum Cups</title>
 
-    body {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        background: radial-gradient(circle at top, var(--bg2), var(--bg1));
-        color: var(--text);
-        text-align: center;
-        padding: 20px;
-        overflow-x: hidden;
-    }
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    h1 {
-        font-size: 40px;
-        letter-spacing: 4px;
-        text-transform: uppercase;
-        text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2);
-        margin-bottom: 5px;
-    }
-
-    h2 {
-        margin-top: 0;
-        font-weight: 400;
-    }
-
-    #atoms {
-        display: flex;
-        justify-content: center;
-        margin-top: 40px;
-        gap: 80px;
-    }
-
-    .atom {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        position: relative;
-        cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: bold;
-        font-size: 26px;
-        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
-        background: radial-gradient(circle at center, #ffffff33, #00e5ff11);
-        overflow: visible;
-    }
-
-    .atom:hover {
-        transform: scale(1.08);
-        box-shadow: 0 0 30px rgba(255, 64, 129, 0.7);
-    }
-
-    .atom::before,
-    .atom::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        border: 2px solid rgba(255,255,255,0.4);
-        box-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
-
-    .atom::before {
-        width: 120px;
-        height: 120px;
-        animation: orbit1 4s linear infinite;
-    }
-
-    .atom::after {
-        width: 90px;
-        height: 90px;
-        animation: orbit2 6s linear infinite;
-    }
-
-    .electron {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 0 10px #fff;
-    }
-
-    .electron.e1 { animation: eOrbit1 3s linear infinite; }
-    .electron.e2 { animation: eOrbit2 4s linear infinite; }
-    .electron.e3 { animation: eOrbit3 5s linear infinite; }
-
-    @keyframes orbit1 {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    @keyframes orbit2 {
-        0% { transform: rotate(360deg); }
-        100% { transform: rotate(0deg); }
-    }
-
-    @keyframes eOrbit1 {
-        0% { transform: rotate(0deg) translateX(60px); }
-        100% { transform: rotate(360deg) translateX(60px); }
-    }
-
-    @keyframes eOrbit2 {
-        0% { transform: rotate(0deg) translateX(45px); }
-        100% { transform: rotate(360deg) translateX(45px); }
-    }
-
-    @keyframes eOrbit3 {
-        0% { transform: rotate(0deg) translateX(30px); }
-        100% { transform: rotate(360deg) translateX(30px); }
-    }
-
-    .shuffle {
-        animation: shuffleMove 0.8s ease-in-out;
-    }
-
-    @keyframes shuffleMove {
-        0% { transform: translateX(0); }
-        50% { transform: translateX(40px); }
-        100% { transform: translateX(0); }
-    }
-
-    .photon-flash {
-        animation: photonFlash 0.5s ease-out;
-    }
-
-    @keyframes photonFlash {
-        0% { box-shadow: 0 0 10px #fff, 0 0 30px #00e5ff; }
-        100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
-    }
-
-    .electron-zap {
-        animation: electronZap 0.4s ease-out;
-    }
-
-    @keyframes electronZap {
-        0% { box-shadow: 0 0 20px #ff1744, 0 0 40px #ff1744; }
-        100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); }
-    }
-
-    .shake {
-        animation: shake 0.4s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        50% { transform: translateX(10px); }
-        75% { transform: translateX(-6px); }
-    }
-
-    #shop, #skinShop, #adminMenu {
-        margin-top: 30px;
-        padding: 20px;
-        background: rgba(10, 20, 40, 0.9);
-        border-radius: 12px;
-        display: inline-block;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-
-    button {
-        padding: 8px 16px;
-        margin: 6px;
-        cursor: pointer;
-        border-radius: 6px;
-        border: none;
-        background: linear-gradient(90deg, var(--accent), var(--accent2));
-        color: #fff;
-        font-weight: 600;
-        text-shadow: 0 0 4px rgba(0,0,0,0.7);
-    }
-
-    button:hover {
-        filter: brightness(1.2);
-    }
-
-    #quizBox {
-        margin-top: 20px;
-        padding: 20px;
-        background: rgba(20, 30, 60, 0.95);
-        border-radius: 10px;
-        display: none;
-    }
-
-    #quizAnswer {
-        padding: 6px 10px;
-        border-radius: 6px;
-        border: none;
-        margin-right: 8px;
-    }
-
-    #indicator {
-        margin-top: 15px;
-        padding: 8px 16px;
-        background: linear-gradient(90deg, #ffea00, #ff9100);
-        color: #000;
-        font-weight: bold;
-        border-radius: 10px;
-        display: none;
-        animation: fadeOut 2s forwards;
-        box-shadow: 0 0 15px rgba(255, 234, 0, 0.7);
-    }
-
-    @keyframes fadeOut {
-        0% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-
-    #adminMenu {
-        display: none;
-        margin-top: 20px;
-        text-align: left;
-        max-width: 400px;
-    }
-
-    #skinList {
-        max-height: 220px;
-        overflow-y: auto;
-        text-align: left;
-        width: 320px;
-    }
-
-    #skinList button {
-        width: 100%;
-        text-align: left;
-        margin: 4px 0;
-        font-size: 13px;
-    }
-
-    input {
-        margin: 4px 0;
-    }
-</style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>Quantum Cups</h1>
-<h2>Photons, electrons, and atomic skins.</h2>
-<h2>Money: $<span id="money">10</span></h2>
 
-<div id="indicator"></div>
-
-<div id="atoms"></div>
-
-<div id="shop">
-    <h2>Quantum Powerups (Answer chemistry questions)</h2>
-    <button onclick="attemptBuy('hint')">Photon Hint</button>
-    <button onclick="attemptBuy('shield')">Electron Shield</button>
-    <button onclick="attemptBuy('double')">Photon Burst (x2)</button>
-    <button onclick="attemptBuy('lucky')">Electron Void</button>
-    <button onclick="attemptBuy('peek')">Quantum Peek</button>
-    <button onclick="attemptBuy('swap')">Atom Swap</button>
+<div id="authBox">
+  <h2>Operator Login</h2>
+  <input id="emailInput" type="email" placeholder="Email"><br>
+  <input id="passwordInput" type="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+  <button onclick="signup()">Create Account</button>
+  <p id="authMessage" style="color:yellow; min-height:20px;"></p>
 </div>
 
-<div id="skinShop">
-    <h2>Element Skins (All 118, with bonuses)</h2>
-    <div id="skinList"></div>
-</div>
+<div id="gameContainer">
+  <h2 id="welcomeText"></h2>
 
-<div style="margin-top:20px;">
-    <button onclick="adminLogin()">Admin Menu</button>
-</div>
+  <div id="statusBar">
+    <div id="moneyDisplay">Credits: <span id="moneyValue">0</span></div>
+    <div id="elementDisplay">Element: H (Hydrogen) (x1.0)</div>
+    <div id="rebirthDisplay">Rebirths: 0 (x1.0)</div>
+  </div>
 
-<div id="adminMenu">
-    <h2>Admin Panel</h2>
+  <div id="atoms"></div>
 
-    <h3>Edit Money</h3>
-    <input id="adminMoney" type="number" placeholder="Set money">
-    <button onclick="setMoney()">Apply</button>
+  <div id="controls">
+    Bet: <input id="betInput" type="number" value="10" min="1" style="width:80px;">
+    <button onclick="startRound()">Start Round</button>
+    <p class="smallNote">Click an atom after the shuffle to find the photon. Miss and you lose the bet.</p>
+    <div id="message"></div>
+  </div>
 
-    <h3>Add New Chemistry Question</h3>
-    <input id="newQ" style="width:100%;" placeholder="Question">
-    <input id="newA" style="width:100%;" placeholder="Answer">
-    <button onclick="addQuestion()">Add Question</button>
-</div>
+  <div class="panel">
+    <h3>Element Progression</h3>
+    <p class="smallNote">
+      Unlock every element in the periodic table. Only after all 118 are unlocked can you rebirth and access ultra elements like Neurovium.
+    </p>
+    <div id="elementList"></div>
+    <button onclick="rebirth()">Rebirth</button>
+    <p class="smallNote">
+      Rebirth resets credits, element, and upgrades but gives a permanent multiplier and unlocks ultra elements.
+    </p>
+  </div>
 
-<div id="quizBox">
-    <h3 id="quizQuestion"></h3>
-    <input id="quizAnswer" placeholder="Type answer">
-    <button onclick="submitAnswer()">Submit</button>
+  <div class="panel">
+    <h3>Upgrades</h3>
+    <p class="smallNote">Brutal grind. These are expensive but game‑changing.</p>
+    <div id="upgradeList"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Research Lab (Chemistry Questions)</h3>
+    <p class="smallNote">
+      High‑risk, high‑reward. Correct answers give big credits and can unlock or boost powerups. Wrong answers can cost you.
+    </p>
+    <p id="quizQuestion">Press "New Question" to begin.</p>
+    <input id="quizAnswer" placeholder="Your answer">
+    <button onclick="newChemQuestion()">New Question</button>
+    <button onclick="submitChemAnswer()">Submit</button>
+    <p id="quizFeedback"></p>
+  </div>
+
+  <div class="panel">
+    <h3>Leaderboard (Lifetime Credits)</h3>
+    <ul id="leaderboardList"></ul>
+  </div>
+
+  <div class="panel">
+    <h3>Admin</h3>
+    <button onclick="adminLogin()">Open Admin Panel</button>
+    <div id="adminMenu">
+      <h4>Edit Player</h4>
+      <input id="adminTargetEmail" placeholder="Player email"><br>
+      <input id="adminTargetCredits" type="number" placeholder="Credits"><br>
+      <input id="adminTargetElement" type="number" placeholder="Element index (0‑117 + ultra)"><br>
+      <input id="adminTargetRebirths" type="number" placeholder="Rebirths"><br>
+      <input id="adminTargetUpgrades" placeholder='Upgrades JSON (optional)'><br>
+      <button onclick="adminSetPlayerData()">Apply</button>
+      <p class="smallNote">Full control: credits, element, rebirths, upgrades.</p>
+    </div>
+  </div>
 </div>
 
 <script src="game.js"></script>
