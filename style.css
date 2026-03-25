@@ -47,6 +47,11 @@ button:hover {
   transform: translateY(-1px);
 }
 
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 input {
   padding: 6px 10px;
   border-radius: 6px;
@@ -249,20 +254,6 @@ input {
   margin: 4px 0;
   text-align: left;
   font-size: 13px;
-}
-
-#leaderboardList {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-#leaderboardList li {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  font-size: 14px;
 }
 
 .smallNote {
