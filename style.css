@@ -24,11 +24,6 @@ h1 {
   margin-bottom: 5px;
 }
 
-h2 {
-  margin-top: 0;
-  font-weight: 400;
-}
-
 button {
   padding: 8px 16px;
   margin: 6px;
@@ -42,64 +37,20 @@ button {
   transition: transform 0.1s, filter 0.1s;
 }
 
-button:hover {
-  filter: brightness(1.2);
-  transform: translateY(-1px);
-}
+button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+button:disabled { opacity: 0.45; cursor: default; }
 
-button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
+input { padding: 6px 10px; border-radius: 6px; border: none; margin: 4px; }
 
-input {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  margin: 4px;
-}
+#authBox { margin: 20px auto; padding: 20px; background: rgba(10,20,40,0.9); border-radius: 12px; display: inline-block; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
+#gameContainer { display: none; margin-top: 20px; }
+#statusBar { margin: 10px auto; padding: 10px; background: rgba(10,20,40,0.9); border-radius: 10px; display: inline-block; }
+#moneyDisplay { font-size: 20px; margin-bottom: 4px; }
+#elementDisplay, #rebirthDisplay { font-size: 14px; opacity: 0.9; }
 
-#authBox {
-  margin: 20px auto;
-  padding: 20px;
-  background: rgba(10,20,40,0.9);
-  border-radius: 12px;
-  display: inline-block;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-}
+#atoms { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
 
-#gameContainer {
-  display: none;
-  margin-top: 20px;
-}
-
-#statusBar {
-  margin: 10px auto;
-  padding: 10px;
-  background: rgba(10,20,40,0.9);
-  border-radius: 10px;
-  display: inline-block;
-}
-
-#moneyDisplay {
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-
-#elementDisplay,
-#rebirthDisplay {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-#atoms {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin-top: 30px;
-}
-
-/* 3D-ish atom cups */
+/* CSS 3D atom visuals */
 .atom {
   width: 140px;
   height: 140px;
@@ -116,15 +67,12 @@ input {
   background: radial-gradient(circle at 30% 20%, #ffffff33, #000000dd);
   box-shadow: 0 20px 40px rgba(0,0,0,0.8);
   transform-style: preserve-3d;
+  perspective: 800px;
 }
 
-.atom:hover {
-  transform: translateY(-6px) rotateX(12deg);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.9);
-}
+.atom:hover { transform: translateY(-6px) rotateX(12deg); box-shadow: 0 30px 60px rgba(0,0,0,0.9); }
 
-.atom::before,
-.atom::after {
+.atom::before, .atom::after {
   content: "";
   position: absolute;
   border-radius: 50%;
@@ -132,136 +80,38 @@ input {
   box-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
-.atom::before {
-  width: 110px;
-  height: 110px;
-  animation: orbit1 4s linear infinite;
-}
+.atom::before { width: 110px; height: 110px; animation: orbit1 4s linear infinite; transform-origin: center; }
+.atom::after  { width: 80px;  height: 80px;  animation: orbit2 6s linear infinite; transform-origin: center; }
 
-.atom::after {
-  width: 80px;
-  height: 80px;
-  animation: orbit2 6s linear infinite;
-}
-
-.electron {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 10px #fff;
-}
-
+.electron { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff; }
 .e1 { animation: eOrbit1 3s linear infinite; }
 .e2 { animation: eOrbit2 4s linear infinite; }
 .e3 { animation: eOrbit3 5s linear infinite; }
 
-@keyframes orbit1 {
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(360deg); }
-}
+@keyframes orbit1 { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+@keyframes orbit2 { 0% { transform: rotateX(0deg); } 100% { transform: rotateX(360deg); } }
+@keyframes eOrbit1 { 0% { transform: rotate(0deg) translateX(55px); } 100% { transform: rotate(360deg) translateX(55px); } }
+@keyframes eOrbit2 { 0% { transform: rotate(0deg) translateX(40px); } 100% { transform: rotate(360deg) translateX(40px); } }
+@keyframes eOrbit3 { 0% { transform: rotate(0deg) translateX(25px); } 100% { transform: rotate(360deg) translateX(25px); } }
 
-@keyframes orbit2 {
-  0% { transform: rotateX(0deg); }
-  100% { transform: rotateX(360deg); }
-}
+.atomLabel { position: absolute; bottom: 4px; font-size: 12px; opacity: 0.8; }
 
-@keyframes eOrbit1 {
-  0% { transform: rotate(0deg) translateX(55px); }
-  100% { transform: rotate(360deg) translateX(55px); }
-}
+.atom.shuffle { animation: shuffleMove 0.4s ease-in-out; }
+@keyframes shuffleMove { 0% { transform: translateX(0); } 50% { transform: translateX(20px); } 100% { transform: translateX(0); } }
 
-@keyframes eOrbit2 {
-  0% { transform: rotate(0deg) translateX(40px); }
-  100% { transform: rotate(360deg) translateX(40px); }
-}
+.atom.win { animation: winFlash 0.5s ease-out; }
+@keyframes winFlash { 0% { box-shadow: 0 0 20px var(--win); } 100% { box-shadow: 0 20px 40px rgba(0,0,0,0.8); } }
 
-@keyframes eOrbit3 {
-  0% { transform: rotate(0deg) translateX(25px); }
-  100% { transform: rotate(360deg) translateX(25px); }
-}
+.atom.lose { animation: loseFlash 0.5s ease-out; }
+@keyframes loseFlash { 0% { box-shadow: 0 0 20px var(--danger); } 100% { box-shadow: 0 20px 40px rgba(0,0,0,0.8); } }
 
-.atomLabel {
-  position: absolute;
-  bottom: 4px;
-  font-size: 12px;
-  opacity: 0.8;
-}
+#controls { margin-top: 20px; }
+#message { margin-top: 10px; min-height: 20px; }
+.winText { color: var(--win); }
+.loseText { color: var(--danger); }
 
-.atom.shuffle {
-  animation: shuffleMove 0.4s ease-in-out;
-}
-
-@keyframes shuffleMove {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(20px); }
-  100% { transform: translateX(0); }
-}
-
-.atom.win {
-  animation: winFlash 0.5s ease-out;
-}
-
-@keyframes winFlash {
-  0% { box-shadow: 0 0 20px var(--win); }
-  100% { box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-}
-
-.atom.lose {
-  animation: loseFlash 0.5s ease-out;
-}
-
-@keyframes loseFlash {
-  0% { box-shadow: 0 0 20px var(--danger); }
-  100% { box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-}
-
-#controls {
-  margin-top: 20px;
-}
-
-#message {
-  margin-top: 10px;
-  min-height: 20px;
-}
-
-.winText {
-  color: var(--win);
-}
-
-.loseText {
-  color: var(--danger);
-}
-
-.panel {
-  margin: 20px auto;
-  padding: 16px;
-  background: rgba(10,20,40,0.9);
-  border-radius: 12px;
-  max-width: 520px;
-  text-align: left;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-}
-
-.panel h3 {
-  margin-top: 0;
-}
-
-#elementList button,
-#upgradeList button {
-  width: 100%;
-  margin: 4px 0;
-  text-align: left;
-  font-size: 13px;
-}
-
-.smallNote {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-#adminMenu {
-  display: none;
-  margin-top: 10px;
-}
+.panel { margin: 20px auto; padding: 16px; background: rgba(10,20,40,0.9); border-radius: 12px; max-width: 520px; text-align: left; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
+.panel h3 { margin-top: 0; }
+#elementList button, #upgradeList button { width: 100%; margin: 4px 0; text-align: left; font-size: 13px; }
+.smallNote { font-size: 12px; opacity: 0.8; }
+#adminMenu { display: none; margin-top: 10px; }
