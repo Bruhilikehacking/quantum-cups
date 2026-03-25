@@ -1,113 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Quantum Cups</title>
-
+  <title>Quantum Cups: Atomic Edition</title>
+  <link rel="stylesheet" href="style.css">
   <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<h1>Quantum Cups</h1>
-
-<div id="authBox">
-  <h2>Operator Login</h2>
-  <input id="emailInput" type="email" placeholder="Email"><br>
-  <input id="passwordInput" type="password" placeholder="Password"><br>
-  <button id="btnLogin" onclick="login()">Login</button>
-  <button id="btnSignup" onclick="signup()">Create Account</button>
-  <p id="authMessage" style="color:yellow; min-height:20px;"></p>
-</div>
-
-<div id="gameContainer">
-  <h2 id="welcomeText"></h2>
-
-  <div id="statusBar">
-    <div id="moneyDisplay">Credits: <span id="moneyValue">0</span></div>
-    <div id="elementDisplay">Element: H (Hydrogen) (x1.0)</div>
-    <div id="rebirthDisplay">Rebirths: 0 (x1.0)</div>
-  </div>
-
-  <div id="atoms"></div>
-
-  <div id="controls">
-    <button onclick="startRound()">Shuffle Atoms</button>
-    <p class="smallNote">
-      One atom hides a photon (earn credits), one hides an electron (lose credits), one is empty.
-      No betting — just pick an atom after shuffle.
-    </p>
-    <div id="message"></div>
-  </div>
-
-  <div class="panel">
-    <h3>Element Progression</h3>
-    <p class="smallNote">
-      Unlock elements sequentially. Unlock all 118 to allow rebirths that unlock ultra elements.
-    </p>
-    <div id="elementList"></div>
-    <button onclick="attemptRebirth()">Rebirth</button>
-    <p class="smallNote">
-      Rebirth resets credits, element, and upgrades but grants a permanent multiplier and unlocks one ultra element per rebirth.
-    </p>
-  </div>
-
-  <div class="panel">
-    <h3>Upgrades</h3>
-    <p class="smallNote">Expensive, exponential costs. They change how the game feels.</p>
-    <div id="upgradeList"></div>
-  </div>
-
-  <div class="panel">
-    <h3>Powerups</h3>
-    <p class="smallNote">
-      Research in the lab (chemistry questions) grants powerup charges.
-    </p>
-    <div>
-      <button id="btnBurst" onclick="useBurst()" disabled>Photon Burst (double next photon)</button>
-      <button id="btnShield" onclick="useShield()" disabled>Electron Shield (ignore next electron)</button>
-      <button id="btnPeek" onclick="usePeek()" disabled>Quantum Peek (reveal photon once)</button>
+  <div id="authBox" class="panel auth-panel">
+    <h1>Quantum Cups</h1>
+    <p class="subtitle">Atomic Edition</p>
+    <input id="emailInput" type="email" placeholder="email">
+    <input id="passwordInput" type="password" placeholder="password">
+    <div class="auth-buttons">
+      <button onclick="signup()">Sign Up</button>
+      <button onclick="login()">Login</button>
     </div>
-    <div id="powerupCounts" class="smallNote"></div>
+    <div id="authMessage" class="auth-message"></div>
   </div>
 
-  <div class="panel">
-    <h3>Research Lab (Chemistry Questions)</h3>
-    <p class="smallNote">
-      High‑risk, high‑reward. Correct answers give credits and research progress. Wrong answers cost credits.
-    </p>
-    <p id="quizQuestion">Press "New Question" to begin.</p>
-    <input id="quizAnswer" placeholder="Your answer">
-    <button onclick="newChemQuestion()">New Question</button>
-    <button onclick="submitChemAnswer()">Submit</button>
-    <p id="quizFeedback"></p>
-  </div>
+  <div id="gameContainer" class="game-container" style="display:none;">
+    <header class="top-bar">
+      <div id="welcomeText" class="welcome"></div>
+      <div class="stats">
+        <span id="moneyValue" class="stat-money">0</span>
+        <span id="elementDisplay" class="stat-element"></span>
+        <span id="rebirthDisplay" class="stat-rebirth"></span>
+      </div>
+      <div class="top-buttons">
+        <button onclick="startRound()">Start Round</button>
+        <button onclick="attemptRebirth()">Rebirth</button>
+        <button onclick="openAdmin()">Admin</button>
+      </div>
+    </header>
 
-  <div class="panel">
-    <h3>Leaderboard (Lifetime Credits)</h3>
-    <ul id="leaderboardList"></ul>
-  </div>
+    <main class="main-layout">
+      <!-- Atoms -->
+      <section class="panel atoms-panel">
+        <h2>Quantum Field</h2>
+        <div id="atoms" class="atoms"></div>
+        <div id="message" class="message"></div>
+        <div class="powerups">
+          <div id="powerupCounts" class="powerup-counts"></div>
+          <div class="powerup-buttons">
+            <button id="btnBurst" onclick="useBurst()">Photon Burst</button>
+            <button id="btnShield" onclick="useShield()">Electron Shield</button>
+            <button id="btnPeek" onclick="usePeek()">Quantum Peek</button>
+          </div>
+        </div>
+      </section>
 
-  <div class="panel">
-    <h3>Admin</h3>
-    <button onclick="openAdmin()">Open Admin Panel</button>
-    <div id="adminMenu">
-      <h4>Edit Player</h4>
-      <input id="adminTargetEmail" placeholder="Player email"><br>
-      <input id="adminTargetCredits" type="number" placeholder="Credits"><br>
-      <input id="adminTargetElement" type="number" placeholder="Element index (0‑117 + ultra)"><br>
-      <input id="adminTargetRebirths" type="number" placeholder="Rebirths"><br>
-      <input id="adminTargetUpgrades" placeholder='Upgrades JSON (optional)'><br>
-      <button onclick="adminSetPlayerData()">Apply</button>
-      <p class="smallNote">Admin access is restricted to the configured admin email.</p>
+      <!-- Elements & Upgrades -->
+      <section class="panel side-panel">
+        <div class="subpanel">
+          <h2>Elements</h2>
+          <p class="hint">Unlock elements sequentially. Rebirth to access ultra elements.</p>
+          <div id="elementList" class="scroll-list"></div>
+        </div>
+        <div class="subpanel">
+          <h2>Upgrades</h2>
+          <div id="upgradeList" class="scroll-list"></div>
+        </div>
+      </section>
+
+      <!-- Research & Leaderboard -->
+      <section class="panel side-panel">
+        <div class="subpanel">
+          <h2>Chemistry Research</h2>
+          <p class="hint">Correct answers give credits & powerups. Wrong answers cost credits.</p>
+          <div id="quizQuestion" class="quiz-question">Press "New Question".</div>
+          <input id="quizAnswer" type="text" placeholder="your answer">
+          <div class="quiz-buttons">
+            <button onclick="newChemQuestion()">New Question</button>
+            <button onclick="submitChemAnswer()">Submit</button>
+          </div>
+          <div id="quizFeedback" class="quiz-feedback"></div>
+        </div>
+
+        <div class="subpanel">
+          <h2>Leaderboard</h2>
+          <ul id="leaderboardList" class="leaderboard"></ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- Admin Panel -->
+    <div id="adminMenu" class="panel admin-panel" style="display:none;">
+      <h2>Admin Control</h2>
+      <p class="hint">Edit any operator by email. Changes write directly to Firestore.</p>
+      <input id="adminTargetEmail" type="email" placeholder="target email">
+      <input id="adminTargetCredits" type="number" placeholder="credits (leave blank = no change)">
+      <input id="adminTargetElement" type="number" placeholder="element index (0-117, leave blank = no change)">
+      <input id="adminTargetRebirths" type="number" placeholder="rebirths (leave blank = no change)">
+      <textarea id="adminTargetUpgrades" placeholder='upgrades JSON (optional, e.g. {"payoutBoost":2,"hintChance":1,"maxBet":0,"cupSpeed":0})'></textarea>
+      <div class="admin-buttons">
+        <button onclick="adminSetPlayerData()">Apply Changes</button>
+        <button onclick="document.getElementById('adminMenu').style.display='none'">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="game.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
